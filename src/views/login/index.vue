@@ -14,17 +14,29 @@
           </ul>
 
           <div class="content">
-            <form action="##">
+            <form>
               <div class="input-text clearFix">
                 <i></i>
-                <input type="text" placeholder="手机号" />
-                <span class="error-msg">错误提示信息</span>
+                <input 
+                  type="text" 
+                  placeholder="手机号"
+                  name="phone"
+                  v-model="phone" 
+                  v-validate="{ required: true,regex: /^(13[0-9]|14[5|7]|15[0|1|2|3|4|5|6|7|8|9]|18[0|1|2|3|5|6|7|8|9])\d{8}$/ }"
+                  :class="{invalid: errors.has('phone')}"/>
+                <span class="error-msg">{{errors.first('phone')}}</span>
               </div>
 
               <div class="input-text clearFix">
                 <i class="pwd"></i>
-                <input type="text" placeholder="请输入密码" />
-                <span class="error-msg">错误提示信息</span>
+                <input 
+                  type="password" 
+                  placeholder="请输入密码"
+                  name="password"
+                  v-model="password" 
+                  v-validate="{ required: true, regex: /^[a-zA-Z0-9]{6,16}$/}"
+                  :class="{invalid: errors.has('password')}"/>
+                <span class="error-msg">{{errors.first('password')}}</span>
               </div>
 
               <div class="setting clearFix">
@@ -34,7 +46,7 @@
                 </label>
                 <span class="forget">忘记密码？</span>
               </div>
-              <button class="btn">登&nbsp;&nbsp;录</button>
+              <button class="btn" @click.prevent="login">登&nbsp;&nbsp;录</button>
             </form>
             <div class="call clearFix">
               <ul>
@@ -43,7 +55,7 @@
                 <li><img src="./images/ali.png" alt="" /></li>
                 <li><img src="./images/weixin.png" alt="" /></li>
               </ul>
-              <a href="##" class="register">立即注册</a>
+              <router-link class="register" to="/register">立即注册</router-link>
             </div>
           </div>
         </div>
@@ -71,18 +83,38 @@
 export default {
   name: "loginView",
   data() {
-    return {};
+    return {
+      phone: '',
+      password: ''
+    };
   },
 
   mounted() {},
 
-  methods: {},
+  methods: {
+    async login() {
+      const success = await this.$validator.validateAll();
+      //全部表单验证成功，在向服务器发请求，进行注册
+      //只要有一个表单没有成功，不会发请求
+      if(success) {
+        let { phone, password } = this
+        try {
+           await this.$store.dispatch('login', { phone, password })
+          //  登录的路由组件，看有没有query参数，有的话则跳转到登录页面之前的想要去的页面（即query参数）
+          let toPath = this.$route.query.redirect || '/home'
+          this.$router.push(toPath)
+        } catch(error) {
+          alert(error.message)
+        }
+      }
+    }
+  },
 };
 </script>
 
 <style lang="less" scoped>
 .login-container {
-      .login-wrap {
+  .login-wrap {
     height: 487px;
     background-color: #e93854;
 
@@ -151,7 +183,7 @@ export default {
               width: 37px;
               height: 32px;
               border: 1px solid #ccc;
-              background: url(../../assets/images/icons.png) no-repeat -10px -201px;
+              background: url(@/assets/images/icons.png) no-repeat -10px -201px;
               box-sizing: border-box;
               border-radius: 2px 0 0 2px;
             }
@@ -176,6 +208,10 @@ export default {
 
               border-radius: 0 2px 2px 0;
               outline: none;
+            }
+
+            .error-msg {
+              color: red;
             }
           }
 

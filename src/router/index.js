@@ -4,6 +4,9 @@ import routes from './routes'
 
 Vue.use(VueRouter)
 
+// 引入store
+import store from '@/store'
+import user from '@/store/modules/user'
 
 //需要重写VueRouter.prototype原型对象身上的push|replace方法
 //先把VueRouter.prototype身上的push|replace方法进行保存一份
@@ -50,6 +53,51 @@ const router = new VueRouter({
   scrollBehavior(to, from, savedPosition) {
     // 始终滚动到顶部
     return { y: 0 }
+  }
+})
+
+// 全局守卫
+router.beforeEach(async (to, from, next) => {
+  // to:可以获取到要跳转到的那个路由信息
+  // from:可以获取到从哪个路由而来的
+  // next:放行函数 next()放行，next('/login') 放行到指定路由
+  // next(false) 中断当前导航
+
+  // 用户登录了，才会有token;未登录一定不会有token
+  let token = store.state.user.userToken
+  // 用户信息
+  let userName = store.state.user.userInfo.name
+  if(token) {
+    // 登陆之后就不让手动写路径访问登录页面
+    if(to.path == '/login' || to.path == '/register') {
+      next('/home')
+    } else {
+      // 登陆了，跳转的路由是【home|search|detail|shopcart】
+      // 如果用户名存在
+      if(userName) {
+        next()
+      } else {
+        // 没有用户信息，派发action让仓库存储用户信息
+        try {
+          await store.dispatch('getUserInfo')
+          next()
+        } catch(error) {
+          // 获取不到用户信息【token过期失效】
+          // 清除token
+          await store.dispatch('logout')
+          next('/login')
+        }
+      }
+    }
+  } else {
+    // 未登录，不能访问哪些路径【购物车、交易页面、支付相关等】
+    let toPath = to.path
+    if(toPath == '/trade' || toPath.indexOf('/center') != -1 || toPath.indexOf('/pay') != -1) {
+      // 把未登录的时候想去而没有去成的信息，存储于地址栏中【路由】
+      next('/login?redirect=' +toPath)
+    } else {
+      next()
+    }
   }
 })
 

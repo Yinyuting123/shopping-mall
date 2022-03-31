@@ -5,6 +5,7 @@ import "nprogress/nprogress.css";
 
 // 引入store
 import store from '../store'
+import { getUserToken } from '@/utils/token';
 
 // 封装axios实例
 const request = axios.create({
@@ -14,9 +15,12 @@ const request = axios.create({
 
 // 请求拦截器
 request.interceptors.request.use(config => {
-    if(store.state.detail.uuid_token) {
-        // 给请求头添加字段:和后台沟通好
-        config.headers.userTempId = store.state.detail.uuid_token
+    // if(store.state.detail.uuid_token) {
+    //     // 给请求头添加字段:和后台沟通好
+    //     config.headers.userTempId = store.state.detail.uuid_token
+    // }
+    if(getUserToken()) {
+        config.headers.token = getUserToken()
     }
     // 请求开始
     nprogress.start()

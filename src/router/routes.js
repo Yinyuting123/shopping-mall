@@ -1,12 +1,18 @@
+import store from '@/store'
+
 const Home = ()=>import('@/views/home')
 const Search = ()=>import('@/views/search')
 const Register = ()=>import('@/views/register')
 const Login = ()=>import('@/views/login')
 const ShopCart = ()=>import('@/views/shopcart')
-const Center = ()=>import('@/views/center')
-const MyOrder = ()=>import('@/views/center/myOrder')
 const Detail = ()=>import('@/views/detail')
 const AddCartSuccess = ()=>import('@/views/addCartSuccess')
+const Trade = ()=>import('@/views/trade')
+const Pay = ()=>import('@/views/pay')
+const PaySuccess = ()=>import('@/views/paySuccess')
+const Center = ()=>import('@/views/center')
+const MyOrder = ()=>import('@/views/center/myOrder')
+const GroupOrder = ()=>import('@/views/center/groupOrder')
 
 export default [
     {
@@ -73,19 +79,56 @@ export default [
       }
     }, 
     {
+      path: '/trade',
+      component: Trade,
+      meta: {
+        show: true
+      },
+      // 路由独享守卫
+      beforeEnter: (to, from, next) => {
+        // 去交易页面必须从购物车来
+        console.log(from);
+        if(from.path === '/shopcart') {
+          next()
+        } else {
+          next(from.path)
+        }
+      }
+    },
+    {
+      path: '/pay',
+      component: Pay,
+      beforeEnter: (to, from, next) => {
+        if(from.path === '/trade') {
+          next()
+        } else {
+          next(from.path)
+        }
+      }
+    },
+    {
+      path: '/paysuccess',
+      component: PaySuccess
+    },
+    {
       path: '/center',
       component: Center,
       meta: {
-        show: false
+        show: true
       },
       children: [
         {
           path: '',
-          redirect: '/myorder'
+          redirect: 'myorder'
         },
         {
-        path: '/myorder',
+        path: 'myorder',
         component: MyOrder
-      }]
+        },
+        {
+          path: 'grouporder',
+          component: GroupOrder
+        }
+      ]
     }
   ]

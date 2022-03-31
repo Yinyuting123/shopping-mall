@@ -47,3 +47,75 @@ export const reqUpdateChecked = (params) => request({
     url: `/cart/checkCart/${params.skuId}/${params.isChecked}`,
     method: 'get'
 })
+
+// 获取验证码
+export const reqGetCode = (phone) => request({
+    url: `/user/passport/sendCode/${phone}`,
+    method: 'get'
+})
+
+// 注册用户
+export const reqRegisterUser = (data) => request({
+    url: `/user/passport/register`,
+    method: 'post',
+    data
+})
+
+// 登录
+export const reqLogin = (data) => request({
+    url: '/user/passport/login',
+    method: 'post',
+    data
+})
+
+// 获取用户信息
+export const reqGetUserInfo = () => request({
+    url: '/user/passport/auth/getUserInfo',
+    method: 'get'
+})
+
+// 退出登录
+export const reqLogout = () => request({
+    url: '/user/passport/logout',
+    method: 'get'
+})
+
+// 获取用户地址信息
+export const reqGetUserAddressList = () => request({
+    url: '/user/userAddress/auth/findUserAddressList',
+    method: 'get'
+})
+
+// 获取订单交易页信息
+export const reqGetTradeInfo = () => request({
+    url: '/order/auth/trade',
+    method: 'get'
+})
+
+// 提交订单
+export const reqSubmitOrder = (params, data) => request({
+    url: '/order/auth/submitOrder',
+    method: 'post',
+    params,
+    data
+})
+
+//获取支付信息
+export const reqGetPayInfo = (orderId)=>request({
+    url:`/payment/weixin/createNative/${orderId}`,
+    method:'get'
+});
+
+
+//获取支付订单状态
+export  const reqGetPayStatus = (orderId)=>request({
+    url:`/payment/weixin/queryPayStatus/${orderId}`,
+    method:'get'
+});
+
+//获取个人中心的数据
+export const reqMyOrderList = (page,limit)=>request({
+    url:`/order/auth/${page}/${limit}`,
+    method:'get'
+});
+
